@@ -1,3 +1,10 @@
+#  06/10/2022 FILES csv , cartella dati, 
+#  , *.db e db-journals per files sqlite3 (antonello iovino)
+*.csv
+data/
+*.db 
+*.db-journal
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
