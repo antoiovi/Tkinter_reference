@@ -4,6 +4,9 @@
 Created on Wed Sep 28 10:38:29 2022
 
 @author: antoiovi
+
+Tkinter application to test the widgets TextBox and Entry
+
 """
 
 

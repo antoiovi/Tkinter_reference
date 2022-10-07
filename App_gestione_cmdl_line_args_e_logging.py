@@ -4,6 +4,10 @@
 Created on Wed Sep 28 10:38:29 2022
 
 @author: antoiovi
+
+App to test the handle of command line arguments in a tkinter application 
+an the setting of a logger
+
 """
 
 
@@ -123,15 +127,15 @@ if __name__ == "__main__":
 
     logger= logging.getLogger(__name__)
     
-    logger.debug("Siamo in debug ...")
-    logger.info("Siamo in info ...")
-    logger.warning("Siamo in warning ...")
-    logger.error("Siamo in error ...")
-    logger.critical("Siamo in critical ...")
+    logger.debug("We are in debug ...")
+    logger.info("We are in info ...")
+    logger.warning("We are in warning ...")
+    logger.error("We are in error ...")
+    logger.critical("We are in critical ...")
     #sys.exit(0)
     
     root = tk.Tk()
-    root.title("Frame UNO")
+    root.title("Test command line arguments and logger ")
     content=tk.Frame(root,bg='green')
     #tk.Tk ha la proprieta geometry,; tk.Frame non c'e l'ha
     root.geometry('500x400')
