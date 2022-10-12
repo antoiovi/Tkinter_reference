@@ -101,11 +101,7 @@ class Statusbar(tk.Frame):
         
    
 class MainApplication(tk.Frame):
-    x=0
-    def button1_click(self):
-        s=str(self.x)
-        self.label1.config(text=s)
-        self.x=self.x+1
+
         
     def __init__(self, parent, *args, **kwargs):
         tk.Frame.__init__(self, parent, *args, **kwargs)
