@@ -18,6 +18,6 @@ f1.grid(row=0, column=0, sticky="nsew")
 f2.grid(row=0, column=1, sticky="nsew")
 
 root.grid_columnconfigure(0, weight=0)
-root.grid_columnconfigure(1, weight=2)
+root.grid_columnconfigure(1, weight=1)
 
 root.mainloop()
