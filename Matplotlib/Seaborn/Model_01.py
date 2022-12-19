@@ -63,26 +63,26 @@ class Plotting_area(tk.Frame):
         self.canvas.draw()
         
  
-class View(tk.Toplevel):
-   def __init__(self, master):
-        Toplevel.__init__(self, master)
-        self.protocol('WM_DELETE_WINDOW', master.destroy)
-
+class View(tk.Frame):
+    def __init__(self, parent, *args, **kwargs):
+        tk.Frame.__init__(self, parent, *args, **kwargs)
+        #self.protocol('WM_DELETE_WINDOW', master.destroy)
         Navigationbar(self).pack(side='top')
         Plotting_area(self).pack(side='top')
 
    
-class Testseaborn(Tk):  # The Controller
+class Testseaborn():  # The Controller
     def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.withdraw()
+        #super().__init__(*args, **kwargs)
+        #self.withdraw()
         root = Tk()
         root.title("Frame UNO")
         #content=tk.Frame(root,bg='green')
         #tk.Tk ha la proprieta geometry,; tk.Frame non c'e l'ha
         root.geometry('500x400')
-        View(self)
+        View(root).grid(column=0,row=0)
+        root.mainloop()
 
 
 if __name__ == '__main__':
-    Testseaborn().mainloop()
+    Testseaborn()#.mainloop()
