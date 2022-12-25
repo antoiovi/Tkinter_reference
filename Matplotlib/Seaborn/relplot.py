@@ -51,8 +51,10 @@ class Plotting_area(tk.Frame):
         # plot the data
         #figure = Figure(figsize=(6, 6))
         #ax = figure.subplots()
-        fg = sns.FacetGrid(fmri, hue='event', col='region')
-        fg.map(sns.lineplot, data=fmri,x='timepoint',  y='signal', label='Signal')
+        fg=sns.relplot(  data=fmri, x="timepoint", y="signal", col="region",    hue="event", style="event", kind="line",)
+
+        #fg = sns.FacetGrid(fmri, hue='event', col='region')
+        #fg.map(sns.lineplot, data=fmri,x='timepoint',  y='signal', label='Signal')
         return fg.figure
     
      def redraw_figure(self):
