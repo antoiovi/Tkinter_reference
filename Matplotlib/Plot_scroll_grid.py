@@ -19,50 +19,147 @@ from matplotlib.figure import Figure
 
 import numpy as np
 
+#Matplotlib Default DPI
+DEFAULT_DPI = 100
+
+#Matplotlib Default PPI
+DEFAULT_PPI = 72
+
+class AutoScrollbar(ttk.Scrollbar):
+
+    def __init__(self,
+                 parent,
+                 *args,
+                 **kwargs):
+        '''
+        '''
+        self.parent = parent
+
+        super().__init__(self.parent,
+                         *args,
+                        **kwargs)
+
+    def set(self,
+            low,
+            high):
+        '''
+            When the widget view is modified,
+            the widget notifies the scrollbar by calling the set method.
+            
+        '''
+        if float(low) <= 0.0 and float(high) >= 1.0:
+            self.tk.call('grid',
+                         'remove',
+                         self)
+        else:
+            self.grid()
+        ttk.Scrollbar.set(self,
+                          low,
+                          high)
 class FramePlot(tk.Frame):
     def __init__(self, parent, *args, **kwargs):
         tk.Frame.__init__(self, parent, *args, **kwargs)
-        container=tk.Frame(self)
-        container.grid(column=0, row=0)
-        
-        fig = Figure(figsize=(5, 4), dpi=100)
+        #Set widgets to fill main window such that they are
+        #all the same size
+        self.columnconfigure(0, weight=1)
+        self.rowconfigure(0, weight=1)
+
+        self.create_widgets()
+        self.position_widgets()
+
+    def create_widgets(self):
+        '''
+        '''
+        self.figure = Figure(figsize=(5, 4), dpi=100)
         t = np.arange(0, 3, .01)
-        ax = fig.add_subplot()
+        ax = self.figure.add_subplot()
         line, = ax.plot(t, 2 * np.sin(2 * np.pi * t))
         ax.set_xlabel("time [s]")
-        ax.set_ylabel("f(t)")
-        ax_h=ax.bbox.height
-        ax_w =  ax.bbox.width
-        print("Larghezza ed altezza  del plot H, W ",ax_h,ax_w)
-        '''
-            CREA UN CANVAS CON DENTRO LA Figure
-        '''
-        canvas = FigureCanvasTkAgg(fig, master=container)  # A tk.DrawingArea.
-        # Render the Figure.
-        canvas.draw()
+        ax.set_ylabel("f(t)")  
+            
+      
+        size = self.figure.get_size_inches()*self.figure.dpi # size in pixels
+        print("SIZE>>>",size)
+        self.axis = self.figure.axes[0]
+
+        #if self.axis_off:
+        #    self.axis.set_axis_off()
+
+        self.canvas = tk.Canvas(self)
+        self.frame = ttk.Frame(self.canvas)
+
+        self.mpl_canvas = FigureCanvasTkAgg(self.figure,
+                                            self.frame)
+
+        self.mpl_canvas.draw()
+
+        self.scroll_x = AutoScrollbar(self,
+                                      orient = tk.HORIZONTAL)
+        self.scroll_y = AutoScrollbar(self,
+                                      orient = tk.VERTICAL)
+        self.sizegrip = ttk.Sizegrip(self)
         
-        # AGGIUNGO IL TOOLBAR AL CANVAS
-        #  TclError: cannot use geometry manager grid inside
-        #       .!frame.!mainapplication.!frameplot.!frame which already has slaves managed by pack
-        #toolbar = NavigationToolbar2Tk(canvas, container)
-        #toolbar.update()
-        self.hbar=tk.Scrollbar(container,orient=tk.HORIZONTAL)
-        self.vbar=tk.Scrollbar(container,orient=tk.VERTICAL)
-
-        canvas.get_tk_widget().config(bg='#FFFFFF',scrollregion=(0,0,500,500))
-        #canvas.get_tk_widget().config(width=500,height=300)
-        # Queste righe cambiano la dimensione del grafico 
-        # Imposto la larghezza del plot piu un margine per essere sicuro che venga disegnato tutto
-
-        canvas.get_tk_widget().config(width=ax_w+100,height=ax_h+100)
-        canvas.get_tk_widget().config(xscrollcommand=self.hbar.set, yscrollcommand=self.vbar.set)
+        self.canvas.config(xscrollcommand = self.scroll_x.set,
+                           yscrollcommand = self.scroll_y.set)
+        self.scroll_x.config(command = self.canvas.xview)
+        self.scroll_y.config(command = self.canvas.yview)
         
-        canvas.get_tk_widget().grid(row=0, column=0, sticky="WENS")
+        self.cwid = self.canvas.create_window((0,0),
+                                              window = self.frame,
+                                              anchor = 'nw')
 
-        self.hbar.grid(row=1, column=0, sticky="WE")
-        self.hbar.config(command=canvas.get_tk_widget().xview)
-        self.vbar.grid(row=0, column=1, sticky="NS")
-        self.vbar.config(command=canvas.get_tk_widget().yview)
+        self.frame.bind('<Configure>',
+                        self.set_scrollregion)
+
+        self.toolbar_frame = ttk.Frame(self)
+
+        self.toolbar = NavigationToolbar2Tk(self.mpl_canvas,
+                                            self.toolbar_frame)
+
+    def set_scrollregion(self,
+                         event):
+        '''
+        '''
+        w, h = self.figure.get_size_inches()
+        #print("Scroll region",w,h)
+        w = int(w * DEFAULT_DPI)
+        h = int(h * DEFAULT_DPI)
+        scrollregion = (0,0,w,h)
+        
+        self.canvas.configure(scrollregion = scrollregion)
+        
+    def position_widgets(self):
+        '''
+        '''
+        self.scroll_x.grid(row = 1,
+                           column = 0,
+                           sticky = 'ew')
+
+        self.scroll_y.grid(row = 0,
+                           column = 1,
+                           sticky = 'ns')
+
+        self.canvas.grid(row = 0,
+                         column = 0,
+                         sticky = 'nsew')
+
+        self.mpl_canvas.get_tk_widget().grid(row = 0,
+                                             column = 0,
+                                             sticky = 'nsew')
+
+        self.sizegrip.grid(row = 1,
+                           column = 1,
+                           sticky = 'se')
+
+        #NOTE: Do not use geometry manager with `self.frame`. This will
+        # pass control from the canvas to grid and the canvas will then
+        # no longer know how much to grow.
+
+        self.toolbar.update()
+        self.toolbar_frame.grid(row = 2,
+                                column = 0,
+                                sticky = 'sew')        
+  
 
 
 
