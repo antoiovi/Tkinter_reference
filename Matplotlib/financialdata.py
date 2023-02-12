@@ -1,15 +1,15 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-Created on Wed Sep 28 10:38:29 2022
+Created on Wed Dec 28 20:39:53 2022
 
 @author: antoiovi
 """
 
 
+
 import tkinter as tk
-from tkinter import BOTH, ttk
-from turtle import width
+from tkinter import  ttk
 
 
 from matplotlib.backends.backend_tkagg import (
@@ -18,7 +18,7 @@ from matplotlib.backends.backend_tkagg import (
 from matplotlib.figure import Figure
 
 import numpy as np
-
+import pandas as pd
 #Matplotlib Default DPI
 DEFAULT_DPI = 100
 
@@ -57,34 +57,56 @@ class AutoScrollbar(ttk.Scrollbar):
                           low,
                           high)
 class FramePlot(tk.Frame):
-    def __init__(self, parent, *args, **kwargs):
+    def __init__(self, parent,df=None, *args, **kwargs):
         tk.Frame.__init__(self, parent, *args, **kwargs)
         #Set widgets to fill main window such that they are
         #all the same size
         self.columnconfigure(0, weight=1)
         self.rowconfigure(0, weight=1)
-        self.create_figure()
+        self.create_figure(df)
         self.create_widgets()
         self.position_widgets()
 
-    def create_figure(self):
-        self.figure = Figure(figsize=(5, 4), dpi=100)
-        t = np.arange(0, 3, .01)
-        ax = self.figure.add_subplot()
-        line, = ax.plot(t, 2 * np.sin(2 * np.pi * t))
-        ax.set_xlabel("time [s]")
-        ax.set_ylabel("f(t)")  
+    def create_figure(self,df=None,subplots=False):
+        if df is None:
+            self.figure = Figure(figsize=(5, 4), dpi=100)
+            t = np.arange(0, 3, .01)
+            ax = self.figure.add_subplot()
+            line, = ax.plot(t, 2 * np.sin(2 * np.pi * t))
+            ax.set_xlabel("time [s]")
+            ax.set_ylabel("f(t)") 
+        else:
+            if subplots==True:
+                self.figure = Figure(figsize=(8, 6), dpi=100)
+                ax = self.figure.add_subplot()
+    
+                for name, values in df.iteritems():
+                    print("Name -->",name)
+                    x = values.index
+                    line, = ax.plot(x,values,label=name)
+                    ax.set_xlabel("Date")
+                    ax.set_ylabel('Open')
+                ax.legend()
+            else:
+                self.figure = Figure(figsize=(8, 6), dpi=100)
+                k=1
+                for name, values in df.iteritems():
+                    # (nrows, ncols, index).
+                    ax = self.figure.add_subplot(k,1,k)
+                    print("Name -->",name)
+                    x = values.index
+                    line, = ax.plot(x,values,label=name)
+                    ax.set_xlabel("Date")
+                    ax.set_ylabel('Open')
+                    k=k+1
+                    ax.legend()
+                    ax.change_geometry(2, 1, 1)
+                
 
     def create_widgets(self):
         '''
         '''
-      
-        size = self.figure.get_size_inches()*self.figure.dpi # size in pixels
-        print("SIZE>>>",size)
         self.axis = self.figure.axes[0]
-
-        #if self.axis_off:
-        #    self.axis.set_axis_off()
 
         self.canvas = tk.Canvas(self)
         self.frame = ttk.Frame(self.canvas)
@@ -160,47 +182,60 @@ class FramePlot(tk.Frame):
         self.toolbar_frame.grid(row = 2,
                                 column = 0,
                                 sticky = 'sew')        
-  
+class Model:
+    def __init__(self):
+        try:
+            aapl=pd.read_csv("../data/AAPL.csv")
+            msft=pd.read_csv("../data/MSFT.csv")
+            aapl['symbol']='AAPL'
+            msft['symbol']='MSFT'
+            
+            frames = [aapl,msft]
 
-
-
-
-class Statusbar(tk.Frame):
-     def __init__(self, parent, *args, **kwargs):
-        tk.Frame.__init__(self, parent, *args, **kwargs)
-        self.messagelbl=ttk.Label(self, text="Status bar")
-        self.messagelbl.grid(column=0, row=0)
         
-   
-class MainApplication(tk.Frame):
+            self.df=pd.concat(frames)
+            self.df.reset_index(inplace=True)
+            self.df['Simbolo']=self.df['symbol'].astype("category")
 
-    def __init__(self, parent, *args, **kwargs):
-        tk.Frame.__init__(self, parent, *args, **kwargs)
-        framePlot=FramePlot(self)
-        framePlot.grid(column=0,row=0,sticky='news')
+            print(self.df.head(5))
+        except :
+            self.df=None
+            print("../dataframe is none")
+    def group_by_symbol(self):
+        return self.df.pivot(index='Date',columns=('symbol'),values='Open')
+
+ 
+class Controller:
+     def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.root=tk.Tk()
+        self.root.columnconfigure(0,weight=1)
+        self.root.rowconfigure(0,weight=1)
+        self.model=Model()
+        self.create_widgets()
+        self.position_widgets()
+        self.root.mainloop()
         
-        statusbar=Statusbar(self)
-        statusbar.grid(column=0,row=2,sticky='NWES',padx=5,pady=5)
-        self.columnconfigure(0,weight=1)
-        self.rowconfigure(0,weight=0)
-        self.rowconfigure(1,weight=1)
+     def create_widgets(self):
+        self.container=tk.Frame(self.root)
+        self.container.columnconfigure(0,weight=1)
+        self.container.rowconfigure(0,weight=1)
+        
+        self.frame_plot=FramePlot(self.container,self.model.group_by_symbol())
+    
+     def position_widgets(self):
+         self.container.grid(column=0,row=0,sticky='news')
+         self.frame_plot.grid(column=0,row=0,sticky='news')
 
 
-if __name__ == "__main__":
-    root = tk.Tk()
-    root.title("Scrollbar on plot")
-    content=tk.Frame(root,bg='green')
-    #tk.Tk ha la proprieta geometry,; tk.Frame non c'e l'ha
-    root.geometry('500x400')
-    # styck (NSEW) espande il content in tutta la root 
-    content.grid(column=0,row=0,sticky='NWES') 
-    # styck (NSEW) espande mainapplication nel content
-    MainApplication(content).grid(column=0,row=0,sticky='WENS')#.pack(side="top", fill="both", expand=True)
-    # Senza questa riga content non occupa tutto il frame root    
-    content.columnconfigure(0,weight=1)
-    content.rowconfigure(0,weight=1)
-    # Senza questa riga root non occupa tutto il frame della applicazione    
-    root.columnconfigure(0,weight=1)
-    root.rowconfigure(0,weight=1)
-    #root.pack(   fill='x')
-    root.mainloop()
+# model=Model()
+# model.df.columns
+
+# model.df.groupby('symbol')
+
+# d=model.df.pivot(index='Date',columns=('symbol'),values='Open')
+# for name, values in d.iteritems():
+#   print(values)
+
+if __name__ == '__main__':
+    Controller()

@@ -1,15 +1,15 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-Created on Wed Sep 28 10:38:29 2022
+Created on Mon Dec 26 21:12:27 2022
 
 @author: antoiovi
 """
 
 
+
 import tkinter as tk
-from tkinter import BOTH, ttk
-from turtle import width
+from tkinter import  ttk
 
 
 from matplotlib.backends.backend_tkagg import (
@@ -78,13 +78,7 @@ class FramePlot(tk.Frame):
     def create_widgets(self):
         '''
         '''
-      
-        size = self.figure.get_size_inches()*self.figure.dpi # size in pixels
-        print("SIZE>>>",size)
         self.axis = self.figure.axes[0]
-
-        #if self.axis_off:
-        #    self.axis.set_axis_off()
 
         self.canvas = tk.Canvas(self)
         self.frame = ttk.Frame(self.canvas)
@@ -164,43 +158,3 @@ class FramePlot(tk.Frame):
 
 
 
-
-class Statusbar(tk.Frame):
-     def __init__(self, parent, *args, **kwargs):
-        tk.Frame.__init__(self, parent, *args, **kwargs)
-        self.messagelbl=ttk.Label(self, text="Status bar")
-        self.messagelbl.grid(column=0, row=0)
-        
-   
-class MainApplication(tk.Frame):
-
-    def __init__(self, parent, *args, **kwargs):
-        tk.Frame.__init__(self, parent, *args, **kwargs)
-        framePlot=FramePlot(self)
-        framePlot.grid(column=0,row=0,sticky='news')
-        
-        statusbar=Statusbar(self)
-        statusbar.grid(column=0,row=2,sticky='NWES',padx=5,pady=5)
-        self.columnconfigure(0,weight=1)
-        self.rowconfigure(0,weight=0)
-        self.rowconfigure(1,weight=1)
-
-
-if __name__ == "__main__":
-    root = tk.Tk()
-    root.title("Scrollbar on plot")
-    content=tk.Frame(root,bg='green')
-    #tk.Tk ha la proprieta geometry,; tk.Frame non c'e l'ha
-    root.geometry('500x400')
-    # styck (NSEW) espande il content in tutta la root 
-    content.grid(column=0,row=0,sticky='NWES') 
-    # styck (NSEW) espande mainapplication nel content
-    MainApplication(content).grid(column=0,row=0,sticky='WENS')#.pack(side="top", fill="both", expand=True)
-    # Senza questa riga content non occupa tutto il frame root    
-    content.columnconfigure(0,weight=1)
-    content.rowconfigure(0,weight=1)
-    # Senza questa riga root non occupa tutto il frame della applicazione    
-    root.columnconfigure(0,weight=1)
-    root.rowconfigure(0,weight=1)
-    #root.pack(   fill='x')
-    root.mainloop()
