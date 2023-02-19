@@ -133,6 +133,7 @@ class Statusbar(tk.Frame):
         self.messagelbl=ttk.Label(self, text="Status bar")
         self.btnStartThread=ttk.Button(self,
                                        text="Start resource consuming thread")
+        #  START THREAD BUTTON
         self.btnStartThread.grid(column=0, row=0)
         self.messagelbl.grid(column=1, row=0)
 
@@ -157,10 +158,14 @@ class MainApplication(tk.Frame):
         self.rowconfigure(1,weight=1)
         self.rowconfigure(2,weight=0)
         
+        # START BUTTON BIND
         statusbar.btnStartThread.bind('<Button-1>',self.start_my_thread)
     
     
     def start_my_thread(self,event):
+        '''
+         START THREAD
+        '''
         #self.button.config(state=tk.DISABLED)
         
         t = threading.Thread(target=self.resource_consumer)
