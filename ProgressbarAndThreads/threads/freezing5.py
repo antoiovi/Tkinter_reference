@@ -1,11 +1,20 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-Created on Fri Feb 17 21:01:39 2023
+https://codeahoy.com/learn/tkinter/ch5/
 
-@author: 
-    https://codeahoy.com/learn/tkinter/ch2/#blocking-callback-functions
-    https://codeahoy.com/learn/tkinter/ch5/
+https://docs.python.org/3/library/queue.html
+
+Moving stuff from threads to tkinter
+
+The thread world and tkinter’s mainloop world must be separated from each other, 
+but we can move stuff between them with queues. 
+
+Usually I need queues for getting stuff from threads back to tkinter. 
+The thread puts something on the queue, and then an after callback gets 
+it from the queue with block=False. Like this:
+
+
 """
 import queue
 import threading

@@ -31,6 +31,11 @@ class WinProgressBar(tk.Toplevel):
         self.progressbar = ttk.Progressbar(self, mode="indeterminate")
         self.progressbar.place(x=30, y=60, width=200)
         self.progressbar.start(20)
+        self.protocol("WM_DELETE_WINDOW", self.on_closing)
+
+    def on_closing(self):
+        self.destroy()
+
 
 class FramePlot(tk.Frame):
     def __init__(self, parent, *args, **kwargs):
